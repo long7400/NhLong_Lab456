@@ -1,6 +1,7 @@
 ﻿using BigSchool.Models;
 using BigSchool.ViewModels;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -132,6 +133,14 @@ namespace BigSchool.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
+        public ActionResult LectureIamGoing()
+        {
+            var userId = User.Identity.GetUserId();
+            var courses = _dbContext.Courses
+                .Where(c => c.LecturerId == userId)
+                .Include(l => l.Lecturer)
+                .ToList();
+            return View(courses);
+        }
     }
 }

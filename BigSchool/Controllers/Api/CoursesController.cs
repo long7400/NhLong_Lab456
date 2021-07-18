@@ -26,9 +26,25 @@ namespace BigSchool.Controllers.Api
             if (course.IsCanceled)
                 return NotFound();
             course.IsCanceled = true;
+            var atten = _dbContext.Attendances
+                .Where(a => a.CourseId == course.Id)
+                .Select(a => a.Attendee)
+                .ToList();
+
+            foreach (var att in atten)
+            {
+                var userNoti = new UserNotification()
+                {
+                    User = att,
+                };
+                _dbContext.UserNotifications.Add(userNoti);
+            }
+
             _dbContext.SaveChanges();
 
             return Ok();
         }
+
+        
     }
 }

@@ -37,5 +37,24 @@ namespace BigSchool.Controllers
 
             return Ok();
         }
+
+        [HttpDelete]
+        public IHttpActionResult UnFollow(FollowingDto followingDto)
+        {
+            var userId = User.Identity.GetUserId();
+            if (_dbContext.Followings.Any(f => f.FollowerId == userId && f.FolloweeId == followingDto.FolloweeId)) ;
+           //    return BadRequest("Following alread exits !!!");
+
+            var folwing = new Following
+            {
+                FollowerId = userId,
+                FolloweeId = followingDto.FolloweeId
+            };
+
+            _dbContext.Followings.Remove(folwing);
+            _dbContext.SaveChanges();
+
+            return Ok();
+        }
     }
 }

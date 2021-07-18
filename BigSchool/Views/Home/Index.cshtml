@@ -11,50 +11,146 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Styles.Render("~/Content/Site.css")
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 </head>
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+
+@using Microsoft.AspNet.Identity;
+@using BigSchool.DTOs;
+@using BigSchool.Models;
+@using Microsoft.AspNet.Identity;
+@using System.Linq;
+@using System.Web.Http;
 
 
+<style>
+    body {
+        font-family: "Poppins", sans-serif;
+        background-color: #F5F5F5;
+    }
 
-<ul class="course">
-    @foreach (var course in Model.UpcommingCourses)
-    {
-        <li>
-            <div class="date">
-                <div>
-                    @course.DateTime.ToString("MM")
-                </div>
-                <div>
-                    @course.DateTime.ToString("dd")
-                </div>
+    .unbutton {
+        background-color: #EE7621;
+    }
+
+    .container_view {
+        display: flex;
+        display: inline-block;
+    }
+
+    .col-4 {
+        margin: 10px 10px;
+        flex-basis: 25%;
+        padding: 10px;
+        min-width: 200px;
+        margin-bottom: 50px;
+        transition: transform 0.6s;
+        cursor: pointer;
+        border-radius: 5px;
+        border: 2px black inset;
+        background-color: white;
+    }
+
+    container_view:hover {
+        transform: translateY(-5px);
+    }
+
+    h4 {
+        color: #555;
+    }
+
+    .rating .fa {
+        color: #ff523b;
+    }
+    .hover1:hover{
+        opacity: 0.7;
+    }
+    
+</style>
+<div class="header">
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <img src="/img/banner-home.png" style="width: 1100px ">
             </div>
-            <div class="details">
-                <span class="lecturer">
-                    @course.Lecturer.Name
-                    @if (Model.ShowAction)
-                    {
-                        <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">
-                            Follow
-                        </button>
-                    }
-                </span>
-                <span>
-                    @course.Category.Name
-                </span>
+        </div>
+
+    </div>
+</div>
+<body>
+    @foreach (var course1 in Model.UpcommingCourses)
+    {
+        <div class="container_view">
+            <div class="col-4">
+                <div class="date" style="margin-top: 10px">
+                    <span> Khóa Học Bắt Đầu Vào: </span>
+                    <br />
+                    <span> Ngày: @course1.DateTime.ToString("dd") </span>
+                    <span> Tháng:  @course1.DateTime.ToString("MM")</span>
+                </div>
+                <div  style="margin-top: 10px">
+                    <span> Giảng Viên:@course1.Lecturer.Name </span>
+                    <br />
+                    <span> Môn học:@course1.Category.Name </span>
+                </div>
+
                 @if (Model.ShowAction)
                 {
-                    <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendace">
-                        GOING ?
-                    </button>
+                    var userId = @User.Identity.GetUserId();
+                    ApplicationDbContext _dbContext = new ApplicationDbContext();
+                    bool isGoing = _dbContext.Followings.Any(f => f.FollowerId == userId);
+
+                    <div style="float: left; margin-right: 15px; margin-left: 8px; margin-top: 10px">
+                        @if (!isGoing)
+                        {
+                            <button class="btn btn-default btn-sm js-toggle-follow hover1" data-user-id="@course1.LecturerId">
+                                Follow
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn unbutton btn-sm js-toggle-follow hover1" data-user-id="@course1.LecturerId">
+                                UNFLW
+                            </button>
+                        }
+                    </div>
+
                 }
+
+                @if (Model.ShowAction)
+                {
+                    var userId = @User.Identity.GetUserId();
+                    ApplicationDbContext _dbContext = new ApplicationDbContext();
+                    bool isGoing = _dbContext.Attendances.Any(a => a.CourseId == course1.Id && a.AttendeeId == userId);
+                    <div style="margin-top: 10px" >
+                        @if (!isGoing)
+                        {
+                            <button data-course-id="@course1.Id" class="btn btn-sm js-toggle-attendace btn-default hover1">
+                                GO
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn unbutton btn-sm js-toggle-attendace hover1" data-course-id="@course1.LecturerId">
+                                Going
+                            </button>
+                        }
+                    </div>
+
+                }
+                <div class="rating" style="margin-top: 10px">
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-0"></i>
+                </div>
             </div>
-        </li>
+        </div>
+
     }
-</ul>
+</body>
 
 
 @section scripts
@@ -63,29 +159,57 @@
         $(document).ready(function () {
             $(".js-toggle-attendace").click(function (e) {
                 var button = $(e.target);
-                $.post("api/attendances", { courseId: button.attr("data-course-id") })
-                    .done(function () {
-                        button
-                            .removeClass("btn-default")
-                            .addClass("btn-info")
-                            .text("Going");
-                    })
-                    .fail(function () {
-                        alert("Something failed !!!")
-                    });
+                if (button.hasClass("btn-default")) {
+                    $.post("api/attendances", { courseId: button.attr("data-course-id") })
+                        .done(function () {
+                            if (result == "cancel") {
+                                alert("Cancel register course sucessfully!")
+                                button
+                                    .removeClass("btn-default")
+                                    .addClass("btn-info")
+                                    .text("Going");
+                            } else {
+                                alert("Register course sucessfully!")
+                                button
+                                    .removeClass("btn-default")
+                                    .addClass("btn-info")
+                                    .text("Going");
+                            }
+                        })
+                        .fail(function () {
+                            alert("Something failed !!!")
+                        });
+                }
             });
             $(".js-toggle-follow").click(function (e) {
                 var button = $(e.target);
-                $.post("api/followings", { followeeId: button.attr("data-user-id") })
-                    .done(function () {
-                        button.text("Following")
+                if (button.hasClass("unbutton")) {
+                    $.ajax({
+                        url: "api/followings" + button.attr("data-user-id"),
+                        method: "DETELE"
                     })
-                    .fail(function () {
-                        alert("Something failed !!!")
-                    });
+                        .done(function () {
+                            button
+                                .removeClass("unbutton")
+                                .text("Unfollow???");
+                        })
+                        .fail(function () {
+                            alert("Something failed 1");
+                        });
+                }
+                else {
+                    $.post("api/followings", { followeeId: button.attr("data-user-id") })
+                        .done(function () {
+                            button
+                                .addClass("unbutton")
+                                .text("Following");
+                        })
+                        .fail(function () {
+                            alert("Something failed 2")
+                        });
+                }
+
             });
-
-
         });
     </script>
 
